@@ -1,4 +1,218 @@
 <!DOCTYPE html>
+<!-- Category Detail Page -->
+<div id="category-detail" class="page-section">
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-cube"></i>
+                <span>TextureX</span>
+            </div>
+            <div class="nav-links">
+                <a class="nav-link" data-target="homepage">Home</a>
+                <a class="nav-link" data-target="categories">Texture Packs</a>
+                <a class="nav-link" data-target="about">About Us</a>
+                <a class="nav-link" data-target="contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+    <section class="categories">
+        <button class="hero-btn" id="back-to-categories" style="margin-bottom:2rem;">← Back</button>
+        <h2 class="section-title" id="category-detail-title">Texture Packs</h2>
+        <div class="category-grid" id="category-detail-grid">
+            <!-- Packs will be injected here -->
+        </div>
+    </section>
+</div>
+<script>
+    // Packs data for each category
+    const packsByCategory = {
+        Fantasy: [
+            {
+                name: "Dragon Realms",
+                description: "Epic dragons and mystical landscapes.",
+                icon: "fas fa-dragon",
+                color: "linear-gradient(45deg, #8e2de2, #4a00e0);",
+                version: "1.19.4",
+                resolution: "32x",
+                size: "45.7 MB",
+                downloads: "124,589"
+            },
+            {
+                name: "Magic Forest",
+                description: "Enchanted woods and magical creatures.",
+                icon: "fas fa-tree",
+                color: "linear-gradient(45deg, #43cea2, #185a9d);",
+                version: "1.19.4",
+                resolution: "32x",
+                size: "38.2 MB",
+                downloads: "98,421"
+            }
+        ],
+        Realistic: [
+            {
+                name: "Ultra Real",
+                description: "Photorealistic blocks and nature.",
+                icon: "fas fa-mountain",
+                color: "linear-gradient(45deg, #00c6ff, #0072ff);",
+                version: "1.19.4",
+                resolution: "64x",
+                size: "52.1 MB",
+                downloads: "87,320"
+            },
+            {
+                name: "NatureCraft",
+                description: "Detailed plants and terrain.",
+                icon: "fas fa-leaf",
+                color: "linear-gradient(45deg, #56ab2f, #a8e063);",
+                version: "1.19.4",
+                resolution: "32x",
+                size: "41.8 MB",
+                downloads: "73,210"
+            }
+        ],
+        Futuristic: [
+            {
+                name: "Cyber World",
+                description: "Neon blocks and sci-fi tech.",
+                icon: "fas fa-robot",
+                color: "linear-gradient(45deg, #f46b45, #eea849);",
+                version: "1.19.4",
+                resolution: "32x",
+                size: "36.5 MB",
+                downloads: "65,900"
+            }
+        ],
+        Cartoon: [
+            {
+                name: "ToonCraft",
+                description: "Playful cartoon textures for a fun world.",
+                icon: "fas fa-palette",
+                color: "linear-gradient(45deg, #00b09b, #96c93d);",
+                version: "1.19.4",
+                resolution: "16x",
+                size: "22.3 MB",
+                downloads: "54,210"
+            }
+        ],
+        Cute: [
+            {
+                name: "Kawaii World",
+                description: "Adorable textures with soft colors and cute designs.",
+                icon: "fas fa-heart",
+                color: "linear-gradient(45deg, #ff6b6b, #ffa8a8);",
+                version: "1.19.4",
+                resolution: "16x",
+                size: "19.7 MB",
+                downloads: "48,900"
+            }
+        ],
+        "Dark Mode": [
+            {
+                name: "Night Vision",
+                description: "Elegant dark textures for long gaming sessions.",
+                icon: "fas fa-moon",
+                color: "linear-gradient(45deg, #2b5876, #4e4376);",
+                version: "1.19.4",
+                resolution: "32x",
+                size: "27.4 MB",
+                downloads: "39,800"
+            }
+        ]
+    };
+
+    let selectedPack = null;
+    let selectedCategory = null;
+
+    // Navigation logic
+    function setActivePage(pageId) {
+        document.querySelectorAll('.page-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-target') === pageId) {
+                link.classList.add('active');
+            }
+        });
+        document.getElementById(pageId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    // Show packs for a category (category-detail page)
+    function showCategoryDetail(categoryName) {
+        selectedCategory = categoryName;
+        setActivePage('category-detail');
+        document.getElementById('category-detail-title').textContent = categoryName + " Texture Packs";
+        const grid = document.getElementById('category-detail-grid');
+        grid.innerHTML = '';
+        (packsByCategory[categoryName] || []).forEach(pack => {
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            card.innerHTML = `
+                <div class=\"card-img\" style=\"background:${pack.color}\">
+                    <i class=\"${pack.icon}\"></i>
+                </div>
+                <div class=\"card-content\">
+                    <h3>${pack.name}</h3>
+                    <p>${pack.description}</p>
+                    <a class=\"card-btn view-pack-btn\">View Pack</a>
+                </div>
+            `;
+            card.querySelector('.view-pack-btn').addEventListener('click', function() {
+                selectedPack = pack;
+                showDownloadPageForPack(pack);
+            });
+            grid.appendChild(card);
+        });
+    }
+
+    // Back button logic for category-detail
+    document.getElementById('back-to-categories').addEventListener('click', function() {
+        setActivePage('categories');
+    });
+
+    // Add "View Packs" buttons to main categories page (replace Download)
+    function setupCategoryCardListeners() {
+        document.querySelectorAll('#categories .category-card').forEach(card => {
+            const h3 = card.querySelector('h3');
+            if (h3) {
+                let btn = card.querySelector('.card-btn');
+                if (btn) {
+                    btn.textContent = 'View Packs';
+                    btn.removeAttribute('data-target');
+                    // Remove previous listeners
+                    btn.replaceWith(btn.cloneNode(true));
+                    btn = card.querySelector('.card-btn');
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        let catName = h3.textContent.replace(' Pack','').replace('Dark Mode','Dark Mode');
+                        showCategoryDetail(catName);
+                    });
+                }
+            }
+        });
+    }
+
+    // Show download page for selected pack (dynamic population)
+    function showDownloadPageForPack(pack) {
+        setActivePage('download-page');
+        // Update download page content dynamically
+        const header = document.querySelector('#download-page .download-header h2');
+        const desc = document.querySelector('#download-page .download-header p');
+        const iconDiv = document.querySelector('#download-page .texture-pack-image');
+        const detail = document.querySelector('#download-page .texture-pack-detail');
+        header.textContent = pack.name || 'Texture Pack';
+        desc.textContent = pack.description || '';
+        iconDiv.innerHTML = `<i class="${pack.icon}"></i>`;
+        // Fill details
+        detail.querySelector('h3').textContent = 'Description';
+        detail.querySelectorAll('p')[0].textContent = pack.description;
+        detail.querySelectorAll('p')[1].innerHTML = `<strong>Version:</strong> ${pack.version}`;
+        detail.querySelectorAll('p')[2].innerHTML = `<strong>Resolution:</strong> ${pack.resolution}`;
+        detail.querySelectorAll('p')[3].innerHTML = `<strong>File Size:</strong> ${pack.size}`;
+        detail.querySelectorAll('p')[4].innerHTML = `<strong>Downloads:</strong> ${pack.downloads}`;
+    }
+</script>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1321,25 +1535,27 @@
             // Navigation
             const navLinks = document.querySelectorAll('.nav-link');
             const pageSections = document.querySelectorAll('.page-section');
-            const buttons = document.querySelectorAll('.hero-btn, .card-btn');
-            
+            const buttons = document.querySelectorAll('.hero-btn');
+
             // Set active page
             function setActivePage(pageId) {
                 pageSections.forEach(section => {
                     section.classList.remove('active');
                 });
-                
                 navLinks.forEach(link => {
                     link.classList.remove('active');
                     if (link.getAttribute('data-target') === pageId) {
                         link.classList.add('active');
                     }
                 });
-                
                 document.getElementById(pageId).classList.add('active');
                 window.scrollTo(0, 0);
+                // Re-setup listeners for category cards when showing categories
+                if (pageId === 'categories') {
+                    setupCategoryCardListeners();
+                }
             }
-            
+
             // Navigation event listeners
             navLinks.forEach(link => {
                 link.addEventListener('click', function() {
@@ -1347,7 +1563,7 @@
                     setActivePage(target);
                 });
             });
-            
+
             buttons.forEach(button => {
                 button.addEventListener('click', function() {
                     const target = this.getAttribute('data-target');
@@ -1356,53 +1572,46 @@
                     }
                 });
             });
-            
+
+            // Initial setup for category card listeners
+            setupCategoryCardListeners();
+
             // Download Page Functionality
             const subscribeBtn = document.getElementById('subscribe-btn');
             const tapCounter = document.getElementById('tap-counter');
             const downloadBtn = document.getElementById('download-btn');
-            
+
             let tapCount = 0;
-            
+
             if (subscribeBtn) {
                 subscribeBtn.addEventListener('click', function() {
                     tapCount++;
-                    
                     if (tapCount === 1) {
                         tapCounter.textContent = "2 more taps! Watch a video first.";
                         subscribeBtn.style.animation = "pulse 0.5s infinite";
-                        
-                        // Open first video in new tab
                         window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
                     } else if (tapCount === 2) {
                         tapCounter.textContent = "1 more tap! Watch another video.";
                         subscribeBtn.style.animation = "pulse 0.3s infinite";
-                        
-                        // Open second video in new tab
                         window.open("https://www.youtube.com/watch?v=jNQXAC9IVRw", "_blank");
                     } else if (tapCount >= 3) {
                         tapCounter.textContent = "Redirecting to our YouTube channel to subscribe...";
                         subscribeBtn.style.background = "linear-gradient(90deg, var(--success), var(--accent))";
                         subscribeBtn.textContent = "Subscribed!";
-                        
-                        // Show download button after 3 taps
                         downloadBtn.style.display = "inline-block";
-                        
-                        // Redirect to YouTube channel for subscription
                         setTimeout(function() {
                             window.open("https://www.youtube.com/channel/UC_x5XG1OV2P6uZZ5FSM9Ttw", "_blank");
                         }, 2000);
                     }
                 });
             }
-            
+
             if (downloadBtn) {
                 downloadBtn.addEventListener('click', function() {
                     alert("Download starting... Thank you for your subscription!");
-                    // The actual download would start here
                 });
             }
-            
+
             // Contact form submission
             const contactForm = document.querySelector('.contact-form');
             if (contactForm) {
@@ -1416,9 +1625,7 @@
             // Ad click handlers
             document.querySelectorAll('.ad-banner').forEach(ad => {
                 ad.addEventListener('click', function() {
-                    // In a real scenario, this would redirect to the advertiser's site
                     alert('Redirecting to advertiser website...');
-                    // window.open('https://example.com', '_blank');
                 });
             });
         });
